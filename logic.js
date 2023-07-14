@@ -4,11 +4,11 @@ const ctx = canvas.getContext("2d");
 var background = new Image();
 background.src = "go-board.jpg";
 
-const stoneOffSet = 37.4771;
+const stoneOffSet = 37.4772;
 const padding = 63;
 
 let color = 'rgba(0, 0, 0, 0.5)';
-let stoneTurn = 1;
+let stoneTurn = 0;
 
 let prevState = { };
 
@@ -21,6 +21,7 @@ for(let c = 0; c < 19; c++) {
 }
 
 document.addEventListener("mousemove", mouseMoveHandler, false);
+document.addEventListener("click", mouseClickHandler, false);
 
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -28,6 +29,25 @@ function getMousePos(canvas, evt) {
         x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
         y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
     };
+}
+
+function mouseClickHandler(e) {
+    var pos = getMousePos(canvas, e);
+    const relativeX = pos.x;
+    const relativeY = pos.y;
+    console.log(relativeX + " " + relativeY);
+    for(let c = 0; c < 19; c++) {
+        for(let r = 0; r < 19; r++) {
+            if (relativeX > ((stones[c][r].x * stoneOffSet) - (stoneOffSet/2)) + padding && 
+                relativeX < ((stones[c][r].x * stoneOffSet) + (stoneOffSet/2)) + padding &&
+                relativeY > ((stones[c][r].y * stoneOffSet) - (stoneOffSet/2)) + padding && 
+                relativeY < ((stones[c][r].y * stoneOffSet) + (stoneOffSet/2)) + padding) {
+                    stones[c][r].status = 2;
+                    stones[c][r].color = stoneTurn;
+                    stoneTurn = 1 - stoneTurn;
+            }
+        }
+    }
 }
 
 function mouseMoveHandler(e) {
@@ -40,7 +60,7 @@ function mouseMoveHandler(e) {
                 relativeX < ((stones[c][r].x * stoneOffSet) + (stoneOffSet/2)) + padding &&
                 relativeY > ((stones[c][r].y * stoneOffSet) - (stoneOffSet/2)) + padding && 
                 relativeY < ((stones[c][r].y * stoneOffSet) + (stoneOffSet/2)) + padding) {
-                    if (stones[c][r] != prevState) {
+                    if (stones[c][r] != prevState && stones[c][r].status < 2) {
                         prevState = stones[c][r]
                         stones[c][r].status = 1;
                         drawHoverStone();
@@ -51,12 +71,33 @@ function mouseMoveHandler(e) {
     if (relativeX < stoneOffSet || relativeX > canvas.width - stoneOffSet || relativeY < stoneOffSet || relativeY > canvas.height - stoneOffSet) { 
         for(let x = 0; x < 19; x++) {
             for(let y = 0; y < 19; y++) {
-                stones[x][y].status = 0;
+                if (stones[x][y].status === 1) stones[x][y].status = 0;
             }
         }
+        prevState = { };
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }    
+
+function drawPlacedStones() {
+    for (let c = 0; c < 19; c++) {
+        for (let r = 0; r < 19; r++) {
+            if (stones[c][r].status === 2) {
+                const stoneX = (stones[c][r].x * stoneOffSet) + padding;
+                const stoneY = (stones[c][r].y * stoneOffSet) + padding;
+                ctx.beginPath();
+                ctx.arc(stoneX, stoneY, stoneOffSet/2, 0, Math.PI * 2);
+                if (stones[c][r].color === 0) {
+                    ctx.fillStyle = "#000000";
+                } else {
+                    ctx.fillStyle = "#FFFFFF";
+                }
+                ctx.fill();
+                ctx.closePath();
+            } 
+        }
+    }
+}
 
 function drawHoverStone() {
     if (stoneTurn === 0) {
@@ -76,33 +117,20 @@ function drawHoverStone() {
                 ctx.fill();
                 ctx.closePath();
                 stones[c][r].status = 0;
-            } else {
+            } else if (stones[c][r].status === 0) {
                 const stoneX = (stones[c][r].x * stoneOffSet) + padding;
                 const stoneY = (stones[c][r].y * stoneOffSet) + padding;
                 ctx.clearRect(stoneX - stoneOffSet/2, stoneY - stoneOffSet/2, stoneOffSet, stoneOffSet);
-                //ctx.beginPath();
-                //ctx.arc(stoneX, stoneY, stoneOffSet/2, 0, Math.PI * 2);
-                //ctx.fillStyle = "#FFFFFF";
-                //ctx.fill();
-                //ctx.closePath();
             }
         }
     }
 }
 
-function drawWhite() {
-    
-    
-    ctx.beginPath();
-    ctx.arc(401 + (stoneOffSet*6), 399 + (stoneOffSet*6), stoneOffSet/2, 0, Math.PI * 2);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fill();
-    ctx.closePath();
-}
-
 function draw() {
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
+    drawPlacedStones();
+
     requestAnimationFrame(draw);
 }
 
