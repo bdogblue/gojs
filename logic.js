@@ -11,6 +11,8 @@ let color = 'rgba(0, 0, 0, 0.5)';
 let stoneTurn = 0;
 
 let prevState = { };
+let stoneGroup = [];
+let airFound = false;
 
 const stones = [];
 for(let c = 0; c < 19; c++) {
@@ -35,7 +37,6 @@ function mouseClickHandler(e) {
     var pos = getMousePos(canvas, e);
     const relativeX = pos.x;
     const relativeY = pos.y;
-    console.log(relativeX + " " + relativeY);
     for(let c = 0; c < 19; c++) {
         for(let r = 0; r < 19; r++) {
             if (relativeX > ((stones[c][r].x * stoneOffSet) - (stoneOffSet/2)) + padding && 
@@ -44,6 +45,7 @@ function mouseClickHandler(e) {
                 relativeY < ((stones[c][r].y * stoneOffSet) + (stoneOffSet/2)) + padding) {
                     stones[c][r].status = 2;
                     stones[c][r].color = stoneTurn;
+                    checkConnectedStone(stones[c][r]);
                     stoneTurn = 1 - stoneTurn;
             }
         }
@@ -89,6 +91,8 @@ function drawPlacedStones() {
                 ctx.arc(stoneX, stoneY, stoneOffSet/2, 0, Math.PI * 2);
                 if (stones[c][r].color === 0) {
                     ctx.fillStyle = "#000000";
+                } else if (stones[c][r].color === 5) {
+                    ctx.fillStyle = "#FF0000";
                 } else {
                     ctx.fillStyle = "#FFFFFF";
                 }
@@ -126,6 +130,89 @@ function drawHoverStone() {
     }
 }
 
+
+function clearStones() {
+    for (let c = 0; c < 19; c++) {
+        for (let r = 0; r < 19; r++) {
+            if (stones[c][r].status === 0) {
+                const stoneX = (stones[c][r].x * stoneOffSet) + padding;
+                const stoneY = (stones[c][r].y * stoneOffSet) + padding;
+                ctx.clearRect(stoneX - stoneOffSet/2, stoneY - stoneOffSet/2, stoneOffSet, stoneOffSet);
+            }
+        }
+    }
+}
+
+function checkConnectedStone(stone) {
+    airFound = false;
+    let stonesFound = [];
+    stoneGroup = [];
+    if(stones[stone.x-1][stone.y].status === 2 && stones[stone.x-1][stone.y].color != stoneTurn) {
+        stonesFound.push(stones[stone.x-1][stone.y]);
+    } 
+    if (stones[stone.x][stone.y-1].status === 2 && stones[stone.x][stone.y-1].color != stoneTurn) {
+        stonesFound.push(stones[stone.x][stone.y-1]);
+    }
+    if (stones[stone.x+1][stone.y].status === 2 && stones[stone.x+1][stone.y].color != stoneTurn) {
+        stonesFound.push(stones[stone.x+1][stone.y]);
+    }
+    if (stones[stone.x][stone.y+1].status === 2 && stones[stone.x][stone.y+1].color != stoneTurn) {
+        stonesFound.push(stones[stone.x][stone.y+1]);
+    }
+    
+    for(let i = 0; i < stonesFound.length; i++) {
+        stoneGroup = [];
+        checkGroupTaken(stonesFound[i]);
+        console.log(i);
+        if (airFound === false) {
+            for(let j = 0; j < stoneGroup.length; j++) {
+                stoneGroup[j].status = 0;
+            }
+            stoneGroup = [];
+        }
+    }
+
+    clearStones();
+    console.log(stoneGroup, airFound);
+}
+
+function checkGroupTaken(stone) {
+    leftStone   = stones[stone.x-1][stone.y];
+    topStone    = stones[stone.x][stone.y-1];
+    rightStone  = stones[stone.x+1][stone.y];
+    bottomStone = stones[stone.x][stone.y+1];
+
+    let sides = [];
+
+    stoneGroup.push(stone);
+    stone.color = 5;
+
+    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
+        sides.push(leftStone);
+    } else if (leftStone.status === 0) {
+        airFound = true;
+    }
+    if (topStone.color != stoneTurn && topStone.status === 2 && !stoneGroup.includes(topStone)) {
+        sides.push(topStone);
+    } else if (topStone.status === 0) {
+        airFound = true;
+    }
+    if (rightStone.color != stoneTurn && rightStone.status === 2 && !stoneGroup.includes(rightStone)) {
+        sides.push(rightStone);
+    } else if (rightStone.status === 0) {
+        airFound = true;
+    }
+    if (bottomStone.color != stoneTurn && bottomStone.status === 2 && !stoneGroup.includes(bottomStone)) {
+        sides.push(bottomStone);
+    } else if (bottomStone.status === 0) {
+        airFound = true;
+    }
+
+    for(let i = 0; i < sides.length && airFound === false; i++) {
+        checkGroupTaken(sides[i]);
+    }
+}
+
 function draw() {
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -135,3 +222,11 @@ function draw() {
 }
 
 draw();
+
+/* # group checking algorithim
+
+1. check all sides of the placed stone counter clock wise one after the other
+
+2. when one is found 
+
+*/
