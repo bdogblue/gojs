@@ -144,9 +144,8 @@ function clearStones() {
 }
 
 function checkConnectedStone(stone) {
-    airFound = false;
     let stonesFound = [];
-    stoneGroup = [];
+    
     if(stones[stone.x-1][stone.y].status === 2 && stones[stone.x-1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x-1][stone.y]);
     } 
@@ -161,9 +160,10 @@ function checkConnectedStone(stone) {
     }
     
     for(let i = 0; i < stonesFound.length; i++) {
+        airFound = false;
         stoneGroup = [];
         checkGroupTaken(stonesFound[i]);
-        console.log(i);
+        
         if (airFound === false) {
             for(let j = 0; j < stoneGroup.length; j++) {
                 stoneGroup[j].status = 0;
@@ -185,13 +185,8 @@ function checkGroupTaken(stone) {
     let sides = [];
 
     stoneGroup.push(stone);
-    stone.color = 5;
+    //stone.color = 5;
 
-    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
-        sides.push(leftStone);
-    } else if (leftStone.status === 0) {
-        airFound = true;
-    }
     if (topStone.color != stoneTurn && topStone.status === 2 && !stoneGroup.includes(topStone)) {
         sides.push(topStone);
     } else if (topStone.status === 0) {
@@ -205,6 +200,12 @@ function checkGroupTaken(stone) {
     if (bottomStone.color != stoneTurn && bottomStone.status === 2 && !stoneGroup.includes(bottomStone)) {
         sides.push(bottomStone);
     } else if (bottomStone.status === 0) {
+        airFound = true;
+    }
+
+    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
+        sides.push(leftStone);
+    } else if (leftStone.status === 0) {
         airFound = true;
     }
 
