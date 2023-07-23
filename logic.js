@@ -42,7 +42,8 @@ function mouseClickHandler(e) {
             if (relativeX > ((stones[c][r].x * stoneOffSet) - (stoneOffSet/2)) + padding && 
                 relativeX < ((stones[c][r].x * stoneOffSet) + (stoneOffSet/2)) + padding &&
                 relativeY > ((stones[c][r].y * stoneOffSet) - (stoneOffSet/2)) + padding && 
-                relativeY < ((stones[c][r].y * stoneOffSet) + (stoneOffSet/2)) + padding) {
+                relativeY < ((stones[c][r].y * stoneOffSet) + (stoneOffSet/2)) + padding &&
+                stones[c][r].status === 0) {
                     stones[c][r].status = 2;
                     stones[c][r].color = stoneTurn;
                     checkConnectedStone(stones[c][r]);
@@ -145,7 +146,7 @@ function clearStones() {
 
 function checkConnectedStone(stone) {
     let stonesFound = [];
-    
+
     if(stones[stone.x-1][stone.y].status === 2 && stones[stone.x-1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x-1][stone.y]);
     } 
@@ -168,12 +169,10 @@ function checkConnectedStone(stone) {
             for(let j = 0; j < stoneGroup.length; j++) {
                 stoneGroup[j].status = 0;
             }
-            stoneGroup = [];
         }
     }
 
     clearStones();
-    console.log(stoneGroup, airFound);
 }
 
 function checkGroupTaken(stone) {
@@ -185,8 +184,12 @@ function checkGroupTaken(stone) {
     let sides = [];
 
     stoneGroup.push(stone);
-    //stone.color = 5;
-
+    
+    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
+        sides.push(leftStone);
+    } else if (leftStone.status === 0) {
+        airFound = true;
+    }
     if (topStone.color != stoneTurn && topStone.status === 2 && !stoneGroup.includes(topStone)) {
         sides.push(topStone);
     } else if (topStone.status === 0) {
@@ -200,12 +203,6 @@ function checkGroupTaken(stone) {
     if (bottomStone.color != stoneTurn && bottomStone.status === 2 && !stoneGroup.includes(bottomStone)) {
         sides.push(bottomStone);
     } else if (bottomStone.status === 0) {
-        airFound = true;
-    }
-
-    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
-        sides.push(leftStone);
-    } else if (leftStone.status === 0) {
         airFound = true;
     }
 
