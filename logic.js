@@ -147,16 +147,20 @@ function clearStones() {
 function checkConnectedStone(stone) {
     let stonesFound = [];
 
-    if(stones[stone.x-1][stone.y].status === 2 && stones[stone.x-1][stone.y].color != stoneTurn) {
+    if(stone.x-1 >= 0 && stones[stone.x-1][stone.y].status === 2 
+        && stones[stone.x-1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x-1][stone.y]);
     } 
-    if (stones[stone.x][stone.y-1].status === 2 && stones[stone.x][stone.y-1].color != stoneTurn) {
+    if (stone.y-1 >= 0 && stones[stone.x][stone.y-1].status === 2 
+        && stones[stone.x][stone.y-1].color != stoneTurn) {
         stonesFound.push(stones[stone.x][stone.y-1]);
     }
-    if (stones[stone.x+1][stone.y].status === 2 && stones[stone.x+1][stone.y].color != stoneTurn) {
+    if (stone.x+1 < 19 && stones[stone.x+1][stone.y].status === 2 
+        && stones[stone.x+1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x+1][stone.y]);
     }
-    if (stones[stone.x][stone.y+1].status === 2 && stones[stone.x][stone.y+1].color != stoneTurn) {
+    if (stone.y+1 < 19 && stones[stone.x][stone.y+1].status === 2 
+        && stones[stone.x][stone.y+1].color != stoneTurn) {
         stonesFound.push(stones[stone.x][stone.y+1]);
     }
     
@@ -176,33 +180,32 @@ function checkConnectedStone(stone) {
 }
 
 function checkGroupTaken(stone) {
-    leftStone   = stones[stone.x-1][stone.y];
-    topStone    = stones[stone.x][stone.y-1];
-    rightStone  = stones[stone.x+1][stone.y];
-    bottomStone = stones[stone.x][stone.y+1];
-
     let sides = [];
 
     stoneGroup.push(stone);
     
-    if (leftStone.color != stoneTurn && leftStone.status === 2 && !stoneGroup.includes(leftStone)) {
-        sides.push(leftStone);
-    } else if (leftStone.status === 0) {
+    if (stone.x-1 >= 0 && stones[stone.x-1][stone.y].color != stoneTurn && stones[stone.x-1][stone.y].status === 2 && 
+        !stoneGroup.includes(stones[stone.x-1][stone.y])) {
+        sides.push(stones[stone.x-1][stone.y]);
+    } else if (stone.x-1 >= 0 && stones[stone.x-1][stone.y].status === 0) {
         airFound = true;
     }
-    if (topStone.color != stoneTurn && topStone.status === 2 && !stoneGroup.includes(topStone)) {
-        sides.push(topStone);
-    } else if (topStone.status === 0) {
+    if (stone.y-1 >= 0 && stones[stone.x][stone.y-1].color != stoneTurn && stones[stone.x][stone.y-1].status === 2 && 
+        !stoneGroup.includes(stones[stone.x][stone.y-1])) {
+        sides.push(stones[stone.x][stone.y-1]);
+    } else if (stone.y-1 >= 0 && stones[stone.x][stone.y-1].status === 0) {
         airFound = true;
     }
-    if (rightStone.color != stoneTurn && rightStone.status === 2 && !stoneGroup.includes(rightStone)) {
-        sides.push(rightStone);
-    } else if (rightStone.status === 0) {
+    if (stone.x+1 < 19 && stones[stone.x+1][stone.y].color != stoneTurn && stones[stone.x+1][stone.y].status === 2 && 
+        !stoneGroup.includes(stones[stone.x+1][stone.y])) {
+        sides.push(stones[stone.x+1][stone.y]);
+    } else if (stone.x+1 < 19 && stones[stone.x+1][stone.y].status === 0) {
         airFound = true;
     }
-    if (bottomStone.color != stoneTurn && bottomStone.status === 2 && !stoneGroup.includes(bottomStone)) {
-        sides.push(bottomStone);
-    } else if (bottomStone.status === 0) {
+    if (stone.y+1 < 19 && stones[stone.x][stone.y+1].color != stoneTurn && stones[stone.x][stone.y+1].status === 2 && 
+        !stoneGroup.includes(stones[stone.x][stone.y+1])) {
+        sides.push(stones[stone.x][stone.y+1]);
+    } else if (stone.y+1 < 19 && stones[stone.x][stone.y+1].status === 0) {
         airFound = true;
     }
 
@@ -220,11 +223,3 @@ function draw() {
 }
 
 draw();
-
-/* # group checking algorithim
-
-1. check all sides of the placed stone counter clock wise one after the other
-
-2. when one is found 
-
-*/
