@@ -67,6 +67,10 @@ function mouseMoveHandler(e) {
                         prevState = stones[c][r]
                         stones[c][r].status = 1;
                         drawHoverStone();
+                    } else if (stones[c][r].status === 2 && prevState.status != 2) {
+                        prevState.status = 0;
+                        clearStones();
+                        prevState = { };
                     }
             }
         }
