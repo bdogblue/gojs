@@ -14,6 +14,9 @@ let prevState = { };
 let stoneGroup = [];
 let airFound = false;
 
+let stonesFound = [];
+let sideCheck = 0;
+
 const stones = [];
 for(let c = 0; c < 19; c++) {
     stones[c] = [];
@@ -47,7 +50,16 @@ function mouseClickHandler(e) {
                     stones[c][r].status = 2;
                     stones[c][r].color = stoneTurn;
                     checkConnectedStone(stones[c][r]);
-                    stoneTurn = 1 - stoneTurn;
+                    
+                    console.log(sideCheck, stonesFound.length);
+                    
+                    if (sideCheck === stonesFound.length) {
+                        stones[c][r].status = 0;
+                        stones[c][r].color = 0;
+                        console.log("Error, illegal move");
+                    } else {
+                        stoneTurn = 1 - stoneTurn;
+                    }
             }
         }
     }
@@ -149,23 +161,32 @@ function clearStones() {
 }
 
 function checkConnectedStone(stone) {
-    let stonesFound = [];
+    stonesFound = [];
+    sideCheck = 0;
 
     if(stone.x-1 >= 0 && stones[stone.x-1][stone.y].status === 2 
         && stones[stone.x-1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x-1][stone.y]);
-    } 
+    } else if (stone.x-1 >= 0 && stones[stone.x-1][stone.y].status === 0) {
+        sideCheck--;
+    }
     if (stone.y-1 >= 0 && stones[stone.x][stone.y-1].status === 2 
         && stones[stone.x][stone.y-1].color != stoneTurn) {
         stonesFound.push(stones[stone.x][stone.y-1]);
+    } else if (stone.y-1 >= 0 && stones[stone.x][stone.y-1].status === 0) {
+        sideCheck--;
     }
     if (stone.x+1 < 19 && stones[stone.x+1][stone.y].status === 2 
         && stones[stone.x+1][stone.y].color != stoneTurn) {
         stonesFound.push(stones[stone.x+1][stone.y]);
+    } else if (stone.x+1 < 19 && stones[stone.x+1][stone.y].status === 0) {
+        sideCheck--;
     }
     if (stone.y+1 < 19 && stones[stone.x][stone.y+1].status === 2 
         && stones[stone.x][stone.y+1].color != stoneTurn) {
         stonesFound.push(stones[stone.x][stone.y+1]);
+    } else if (stone.y+1 < 19 && stones[stone.x][stone.y+1].status === 0) {
+        sideCheck--;
     }
     
     for(let i = 0; i < stonesFound.length; i++) {
@@ -177,6 +198,8 @@ function checkConnectedStone(stone) {
             for(let j = 0; j < stoneGroup.length; j++) {
                 stoneGroup[j].status = 0;
             }
+        } else {
+            sideCheck++;
         }
     }
 
